@@ -1,70 +1,83 @@
-# Getting Started with Create React App
+### Documentation Pratique pour le Projet de Chatbot avec l'API Gemini
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+#### 1. Configuration du Projet
 
-## Available Scripts
+1. **Installation de Node.js et Express**
+   - Assurez-vous d'avoir Node.js installé sur votre machine. Vous pouvez le télécharger depuis [le site officiel de Node.js](https://nodejs.org/).
+   - Créez un nouveau projet Node.js en exécutant `npm init` dans le répertoire de votre projet.
+   - Installez Express et les autres dépendances nécessaires avec la commande suivante :
+     ```bash
+     npm install express cors dotenv fs
+     ```
 
-In the project directory, you can run:
+2. **Configuration du Serveur**
+   - Créez un fichier `server.js` pour configurer votre serveur Express.
+   - Assurez-vous d'inclure les modules nécessaires et configurez les points de terminaison pour gérer les anciennes conversations, la sauvegarde et la suppression des chats.
 
-### `npm start`
+3. **Création du Frontend avec React**
+   - Créez un nouveau projet React avec la commande :
+     ```bash
+     npx create-react-app nom-du-projet
+     ```
+   - Installez les dépendances supplémentaires pour le projet :
+     ```bash
+     npm install @google/generative-ai react-icons react-markdown tailwindcss
+     ```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+#### 2. Utilisation de l'API Gemini
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. **Configuration de l'API**
+   - Importez et configurez l'API Gemini dans votre projet. Vous devez définir la clé API dans un fichier `.env` :
+     ```env
+     REACT_APP_API_KEY=Votre_Clé_API
+     ```
+   - Créez un fichier pour le service API (`anirService.js`) et utilisez le code suivant pour configurer l'API Gemini :
+     ```javascript
+     const { GoogleGenerativeAI } = require("@google/generative-ai");
+     const apiKey = process.env.REACT_APP_API_KEY;
+     const genAI = new GoogleGenerativeAI(apiKey);
 
-### `npm test`
+     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+     const generationConfig = { temperature: 1, topP: 0.95, topK: 64, maxOutputTokens: 8192, responseMimeType: "text/plain" };
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+     let conversationHistory = [ /* Historique de la conversation */ ];
 
-### `npm run build`
+     const anirService = {
+       sendMessage: async (inputText) => {
+         // Ajoutez le texte de l'utilisateur à l'historique de la conversation
+         // Envoyez le message et obtenez la réponse du modèle
+         // Retournez le texte de la réponse pour l'afficher dans le composant de chat
+       },
+     };
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+     export { anirService };
+     ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. **Utilisation dans les Composants React**
+   - Intégrez le service dans vos composants React (`AnirChat` et `OldChats`) pour envoyer des messages, afficher les réponses, et gérer les anciennes conversations.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+#### 3. Dépendances Importantes
 
-### `npm run eject`
+- **Pour le Backend :**
+  - `express` : Serveur HTTP pour gérer les requêtes.
+  - `cors` : Pour permettre les requêtes cross-origin.
+  - `dotenv` : Pour charger les variables d'environnement.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- **Pour le Frontend :**
+  - `@google/generative-ai` : Pour l'intégration de l'API Gemini.
+  - `react-icons` : Pour les icônes dans les composants React.
+  - `react-markdown` : Pour le rendu du Markdown dans les messages.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+#### 4. Structure du Projet
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- **Backend :** Contient le code pour le serveur Express, les points de terminaison pour la gestion des chats, et la configuration de l'API.
+- **Frontend :** Contient les composants React pour l'interface utilisateur, l'intégration de l'API, et la gestion de l'état des chats.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+#### 5. Scripts Utilisés
 
-## Learn More
+- `start` : Démarre le serveur de développement React.
+- `build` : Crée une version optimisée pour la production de votre application React.
+- `test` : Exécute les tests de votre application.
+- `eject` : Extrait les configurations de Create React App pour une personnalisation plus poussée.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Cette documentation vous aidera à mettre en place votre projet de chatbot avec l'API Gemini, en vous guidant à travers les étapes clés et en mettant en évidence les composants essentiels.
