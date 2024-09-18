@@ -1,11 +1,12 @@
 import React from 'react';
+import AnirChat from './components/AnirChat';
 import 'tailwindcss/tailwind.css';
 import './App.css'
 
 function App() {
   return (
     <div className="App">
-      <h1>test</h1>
+      <AnirChat />
     </div>
   );
 }
