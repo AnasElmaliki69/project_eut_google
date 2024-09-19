@@ -17,12 +17,12 @@ function AnirChat() {
   };
 
   const handleSubmit = async (e) => {
-    setUserInput('');
     e.preventDefault();
     if (!userInput.trim()) return;
 
     const newMessage = { role: 'user', text: userInput };
     setChatHistory((prevHistory) => [...prevHistory, newMessage]);
+    setUserInput('');
 
     try {
       setLoading(true);
@@ -30,14 +30,28 @@ function AnirChat() {
       const modelResponse = { role: 'model', text: response };
       setLoading(false);
 
-      setChatHistory((prevHistory) => [...prevHistory, modelResponse]);
+      setChatHistory((prevHistory) => {
+        const updatedHistory = [...prevHistory, modelResponse];
+
+        // Automatically save the chat once the model response is added
+        saveOldChat(updatedHistory);
+
+        return updatedHistory;
+      });
     } catch (error) {
       console.error('Error sending message:', error);
       setLoading(false);
-      setChatHistory((prevHistory) => [
-        ...prevHistory,
-        { role: 'model', text: 'Error: Could not get response from AI' },
-      ]);
+      setChatHistory((prevHistory) => {
+        const updatedHistory = [
+          ...prevHistory,
+          { role: 'model', text: 'Error: Could not get response from AI' },
+        ];
+
+        // Automatically save the chat on error as well
+        saveOldChat(updatedHistory);
+
+        return updatedHistory;
+      });
     }
   };
 
@@ -51,12 +65,12 @@ function AnirChat() {
     }
   };
 
-  const saveOldChat = async () => {
+  const saveOldChat = async (updatedChatHistory) => {
     const newChat = {
       id: currentChatId || Date.now(),
-      conversation: [...chatHistory],
+      conversation: [...updatedChatHistory],
     };
-  
+
     // Update the state with the new or updated chat
     setOldChats((prevChats) => {
       const existingChatIndex = prevChats.findIndex(chat => chat.id === currentChatId);
@@ -67,11 +81,7 @@ function AnirChat() {
       }
       return [...prevChats, newChat];
     });
-  
-    // Reset chat history and ID
-    setChatHistory([]);
-    setCurrentChatId(null);
-  
+
     try {
       const response = await fetch('http://localhost:3001/save-chat', {
         method: 'POST',
@@ -80,17 +90,13 @@ function AnirChat() {
         },
         body: JSON.stringify(newChat),
       });
-  
+
       const result = await response.json();
       console.log(result.message);
-  
-      // After everything is saved, reload the page
-      window.location.reload();
     } catch (error) {
       console.error('Error saving chat history:', error);
     }
   };
-  
 
   const selectChat = (chat) => {
     setChatHistory(chat);
@@ -108,7 +114,7 @@ function AnirChat() {
   }, [chatHistory, loading]);
 
   return (
-    <div className="flex justify-center items-center h-screen bg-indigo-300">
+    <div className="flex justify-center pt-8 items-center h-screen bg-indigo-300">
       <div className="flex w-full max-w-5xl bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="flex flex-col justify-between w-2/3 p-4 border-r border-indigo-700">
           <h1 className="mb-8 font-bold text-[2rem] drop-shadow-lg text-indigo-800">ANIR Chat</h1>
@@ -145,9 +151,6 @@ function AnirChat() {
               <FaPaperPlane />
             </button>
           </form>
-          <button onClick={saveOldChat} className="mt-2 bg-indigo-700 text-white p-2 rounded-lg hover:bg-indigo-800">
-            Save Current Chat
-          </button>
         </div>
 
         <OldChats oldChats={oldChats} selectChat={selectChat} />
